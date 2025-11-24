@@ -53,8 +53,14 @@ class ToonFormat
      */
     public static function decode(string $input, array|DecodeOptions|null $options = null): mixed
     {
-        // TODO: Implement decoder
-        throw new \RuntimeException('Decoder not yet implemented');
+        // Resolve options
+        $resolvedOptions = self::resolveDecodeOptions($options);
+
+        // Create decoder
+        $decoder = new Decoder($resolvedOptions);
+
+        // Decode the input
+        return $decoder->decode($input);
     }
 
     /**
