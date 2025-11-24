@@ -48,10 +48,11 @@ class Decoder
         if ($this->isArrayHeader($firstLine['content'])) {
             $header = $this->parseArrayHeader($firstLine['content']);
             
-            // Root array (no key)
-            if ($header['key'] === null) {
-                // For root arrays, depth is 0, content starts at index 1 with depth 1
-                return $this->decodeArrayContent($parsedLines, 1, -1, $header);
+            // Root array (no key or empty key)
+            if ($header['key'] === null || $header['key'] === '') {
+                // For root arrays, the header has depth 0, content has depth 1
+                // Pass headerDepth = 0 so expectedDepth = 0 + 1 = 1
+                return $this->decodeArrayContent($parsedLines, 1, 0, $header);
             }
         }
 
@@ -103,10 +104,13 @@ class Decoder
 
     /**
      * Check if content is an array header.
+     * Matches patterns like: [3]:, [3,]:, [3,]{fields}:, [3	]: etc.
      */
     private function isArrayHeader(string $content): bool
     {
-        return preg_match('/^\[.*?\]:/', $content) === 1;
+        // Check if starts with [ and contains : somewhere
+        // This covers: [n]:, [n,]:, [n,]{fields}:, [n	]:, [n|]:
+        return preg_match('/^\[/', $content) === 1 && str_contains($content, ':');
     }
 
     /**
