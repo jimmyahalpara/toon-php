@@ -38,7 +38,7 @@ final class Constants
     public const VALID_KEY_REGEX = '/^[A-Z_][\w.]*$/i';
 
     // Characters that require quoting in strings
-    public const STRUCTURAL_CHARS_REGEX = '/[\[\]{}\-:]/';
+    public const STRUCTURAL_CHARS_REGEX = '/[\[\]\{\}\-:]/';
     public const CONTROL_CHARS_REGEX = '/[\x00-\x1F\x7F]/';
 
     // Delimiters mapping

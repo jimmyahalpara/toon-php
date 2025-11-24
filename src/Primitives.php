@@ -110,29 +110,40 @@ class Primitives
         string|false $lengthMarker
     ): string {
         // Build length marker
-        $markerPrefix = $lengthMarker !== false ? $lengthMarker : '';
+        $markerPrefix = ($lengthMarker !== false) ? $lengthMarker : '';
 
         // Build fields if provided
         $fieldsStr = '';
         if ($fields !== null) {
-            $encodedFields = array_map([self::class, 'encodeKey'], $fields);
-            $fieldsStr = Constants::OPEN_BRACE . implode($delimiter, $encodedFields) . Constants::CLOSE_BRACE;
+            $encodedFields = [];
+            foreach ($fields as $field) {
+                $encodedFields[] = self::encodeKey($field);
+            }
+            $openBrace = chr(123); // {
+            $closeBrace = chr(125); // }
+            $fieldsStr = $openBrace . implode($delimiter, $encodedFields) . $closeBrace;
         }
 
         // Build length string with delimiter when needed
-        // Rules: delimiter is optional in bracket [N<delim?>]
-        // Only include delimiter if it's NOT comma (comma is the default)
-        if ($delimiter !== Constants::COMMA) {
-            $lengthStr = Constants::OPEN_BRACKET . $markerPrefix . $length . $delimiter . Constants::CLOSE_BRACKET;
+        // Rules: delimiter must be shown in bracket when fields are present (tabular format)
+        // For primitive arrays, delimiter is optional (only shown for non-comma delimiters)
+        if ($fields !== null) {
+            // Tabular format: always show delimiter
+            $lengthStr = '[' . $markerPrefix . $length . $delimiter . ']';
+        } elseif ($delimiter !== Constants::COMMA) {
+            // Primitive array with non-comma delimiter
+            $lengthStr = '[' . $markerPrefix . $length . $delimiter . ']';
         } else {
-            $lengthStr = Constants::OPEN_BRACKET . $markerPrefix . $length . Constants::CLOSE_BRACKET;
+            // Primitive array with comma delimiter (default)
+            $lengthStr = '[' . $markerPrefix . $length . ']';
         }
 
         // Combine parts
         if ($key !== null) {
-            return self::encodeKey($key) . $lengthStr . $fieldsStr . Constants::COLON;
+            return self::encodeKey($key) . $lengthStr . $fieldsStr . ':';
         }
 
-        return $lengthStr . $fieldsStr . Constants::COLON;
+        return $lengthStr . $fieldsStr . ':';
     }
 }
+

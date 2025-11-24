@@ -29,6 +29,12 @@ class Encoder
      */
     public function encodeValue(mixed $value, int $depth = 0): void
     {
+        // Handle empty stdClass specially (kept as object to distinguish from empty array)
+        if ($value instanceof \stdClass && empty(get_object_vars($value))) {
+            // Empty object at root produces no output
+            return;
+        }
+        
         if (Normalizer::isJsonPrimitive($value)) {
             $this->writer->push($depth, Primitives::encodePrimitive($value, $this->options->getDelimiter()));
         } elseif (Normalizer::isJsonArray($value)) {
@@ -47,6 +53,11 @@ class Encoder
      */
     public function encodeObject(array $obj, int $depth, ?string $key): void
     {
+        // Empty object at root level produces no output
+        if (empty($obj) && $key === null && $depth === 0) {
+            return;
+        }
+        
         if ($key !== null) {
             $this->writer->push($depth, Primitives::encodeKey($key) . Constants::COLON);
         }

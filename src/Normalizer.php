@@ -89,8 +89,15 @@ class Normalizer
 
         // Handle stdClass objects
         if ($value instanceof stdClass) {
+            $vars = get_object_vars($value);
+            
+            // Keep empty stdClass as is to distinguish from empty array
+            if (empty($vars)) {
+                return $value;
+            }
+            
             $normalized = [];
-            foreach (get_object_vars($value) as $key => $val) {
+            foreach ($vars as $key => $val) {
                 $normalized[$key] = self::normalizeValue($val);
             }
 
