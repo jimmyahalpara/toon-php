@@ -56,9 +56,31 @@ jobs:
     
     - name: Generate coverage report
       if: matrix.php == '8.3' && matrix.os == 'ubuntu-latest'
+      run: composer test:coverage
+    
+    - name: Display coverage summary
+      if: matrix.php == '8.3' && matrix.os == 'ubuntu-latest'
       run: |
-        composer test:coverage
-        php -r "echo 'Coverage: ' . round((simplexml_load_file('coverage/clover.xml')->project->metrics['statements'] / simplexml_load_file('coverage/clover.xml')->project->metrics['coveredstatements']) * 100, 2) . '%' . PHP_EOL;"
+        if [ -f coverage/clover.xml ]; then
+          php -r "
+            \$xml = simplexml_load_file('coverage/clover.xml');
+            if (\$xml && \$xml->project && \$xml->project->metrics) {
+              \$metrics = \$xml->project->metrics;
+              \$statements = (int)\$metrics['statements'];
+              \$coveredStatements = (int)\$metrics['coveredstatements'];
+              if (\$statements > 0) {
+                \$coverage = round((\$coveredStatements / \$statements) * 100, 2);
+                echo \"Code Coverage: \$coverage% (\$coveredStatements/\$statements statements)\" . PHP_EOL;
+              } else {
+                echo 'No coverage data available' . PHP_EOL;
+              }
+            } else {
+              echo 'Could not parse coverage report' . PHP_EOL;
+            }
+          "
+        else
+          echo "Coverage report not found"
+        fi
     
     - name: Upload coverage to Codecov
       if: matrix.php == '8.3' && matrix.os == 'ubuntu-latest'
