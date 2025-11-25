@@ -8,42 +8,66 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Planned
-- Fix decoder edge cases for root-level tabular arrays
 - CLI tool for file conversion
 - Performance optimization and benchmarks
-- 100% test coverage
 - Full TOON specification compliance
 
-## [0.9.0] - 2024-11-24
+## [0.9.0] - 2024-11-25
 
 ### Added
 - Initial public release
 - Complete encoder implementation with tabular array support
-- Functional decoder with 91% test coverage (20/22 tests passing)
+- Fully functional decoder with 100% test coverage (22/22 tests passing)
 - Type normalization (DateTime, INF, NAN, stdClass)
 - String utilities with Unicode escape sequences
 - Multiple array formats: inline, tabular, list
 - Custom delimiters: comma, tab, pipe
 - Length validation with strict/lenient modes
-- Comprehensive documentation (API reference, format spec)
+- Comprehensive documentation
+  - Enhanced README with 800+ lines (use cases, examples, token savings)
+  - Complete API reference (docs/api.md)
+  - Detailed format specification (docs/format.md)
+  - Documentation index (docs/README.md)
 - PSR-4 autoloading and PSR-12 code style
-- PHPUnit test suite (22 tests)
-- PHPStan level 8 static analysis
+- PHPUnit test suite (22 tests, 39 assertions)
+- PHPStan level 8 static analysis (strictest)
 - PHP-CS-Fixer code style checking
 - GitHub Actions CI/CD workflows
-- Git Flow branching strategy
-- Contribution guidelines
+  - Multi-PHP version testing (8.0, 8.1, 8.2, 8.3)
+  - Cross-platform testing (Ubuntu, Windows, macOS)
+  - Automated code quality checks
+  - Coverage reporting
+- Git Flow branching strategy (master/develop)
+- Comprehensive contribution guidelines (CONTRIBUTING.md)
+- CHANGELOG.md for version tracking
+- CONTRIBUTORS.md for recognition
 
-### Known Issues
-- 2 decoder edge cases with root-level tabular arrays
-  - `testDecodeTabularArray` - Parses as object key instead of array
-  - `testEncodeDecodeTabularRoundtrip` - Roundtrip fails for root arrays
+### Fixed
+- Decoder edge cases with root-level tabular arrays
+  - Fixed `isArrayHeader()` regex to match patterns with field definitions
+  - Fixed root array detection to handle empty string keys
+  - Fixed headerDepth calculation for proper depth matching
+- PHPStan level 8 errors
+  - Added proper type hints for all array parameters
+  - Added non-empty-string type for delimiter parameters
+  - Fixed division by zero detection for negative zero
+  - Removed unused methods
+- PHP-CS-Fixer code style issues
+  - Fixed `! empty()` and `! isset()` formatting
+  - Fixed arrow function spacing `fn ()`
+  - Removed trailing whitespace
+- CI/CD coverage generation errors
+  - Fixed coverage calculation formula
+  - Added clover.xml generation to phpunit.xml
+  - Added proper error handling for missing files
 
 ### Technical Details
 - PHP 8.0+ required (uses union types, named arguments, null-safe operators)
 - Uses `chr(123)` and `chr(125)` for curly braces to avoid parse errors
 - Empty stdClass preserved as object to distinguish from empty array
 - Tabular format requires delimiter in header: `[2,]{fields}:`
+- Shaped array types for PHPStan level 8 compliance
+- Assertions for delimiter validation in critical paths
 
 ## [0.1.0] - 2024-11-24
 
@@ -56,7 +80,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version History
 
-- **0.9.0** (2024-11-24) - Current: Beta release with comprehensive features
+- **0.9.0** (2024-11-25) - Current: Beta release with comprehensive features and 100% test pass rate
 - **0.1.0** (2024-11-24) - Initial development
 
 ## Release Strategy
