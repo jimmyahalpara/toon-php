@@ -55,6 +55,7 @@ class Normalizer
             }
 
             // Handle negative zero
+            // @phpstan-ignore-next-line Division by zero is intentional to detect -0.0
             if ($value === 0.0 && 1 / $value === -INF) {
                 return 0;
             }

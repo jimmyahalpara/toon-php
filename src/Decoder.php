@@ -116,7 +116,7 @@ class Decoder
     /**
      * Decode an object.
      *
-     * @param array<array> $lines
+     * @param array<array{depth: int, content: string, raw: string}> $lines
      * @param int $startIdx
      * @param int $parentDepth
      * @return array<string, mixed>
@@ -180,34 +180,6 @@ class Decoder
         }
 
         return $result;
-    }
-
-    /**
-     * Decode an array with optional key.
-     *
-     * @return array{0: string|null, 1: array, 2: int}
-     */
-    private function decodeArrayWithKey(array $lines, int $idx, int $depth): array
-    {
-        $line = $lines[$idx];
-        $content = $line['content'];
-
-        // Parse header
-        $header = $this->parseArrayHeader($content);
-        $array = $this->decodeArrayContent($lines, $idx + 1, $depth, $header);
-
-        return [$header['key'], $array, $idx + 1 + count($array)];
-    }
-
-    /**
-     * Decode an array (root array).
-     */
-    private function decodeArray(array $lines, int $startIdx, int $parentDepth): array
-    {
-        $line = $lines[$startIdx];
-        $header = $this->parseArrayHeader($line['content']);
-
-        return $this->decodeArrayContent($lines, $startIdx + 1, $line['depth'], $header);
     }
 
     /**
@@ -285,13 +257,16 @@ class Decoder
     /**
      * Decode array content.
      *
-     * @param array<array> $lines
+     * @param array<array{depth: int, content: string, raw: string}> $lines
+     * @param array{key: string|null, length: int, delimiter: string, fields: array<string>|null, inline: string|null} $header
      * @return array<mixed>
      */
     private function decodeArrayContent(array $lines, int $startIdx, int $headerDepth, array $header): array
     {
         // Inline array
         if ($header['inline'] !== null && $header['inline'] !== '') {
+            assert($header['delimiter'] !== '', 'Delimiter must be non-empty');
+
             return $this->parseInlineArray($header['inline'], $header['delimiter']);
         }
 
@@ -312,6 +287,7 @@ class Decoder
     /**
      * Parse inline array.
      *
+     * @param non-empty-string $delimiter
      * @return array<mixed>
      */
     private function parseInlineArray(string $content, string $delimiter): array
@@ -324,6 +300,8 @@ class Decoder
     /**
      * Decode tabular array.
      *
+     * @param array<array{depth: int, content: string, raw: string}> $lines
+     * @param array{key: string|null, length: int, delimiter: string, fields: array<string>|null, inline: string|null} $header
      * @return array<array<string, mixed>>
      */
     private function decodeTabularArray(array $lines, int $startIdx, int $headerDepth, array $header): array
@@ -343,6 +321,7 @@ class Decoder
                 continue;
             }
 
+            assert($header['delimiter'] !== '', 'Delimiter must be non-empty');
             $values = explode($header['delimiter'], $line['content']);
             $obj = [];
 
@@ -359,6 +338,8 @@ class Decoder
     /**
      * Decode list array.
      *
+     * @param array<array{depth: int, content: string, raw: string}> $lines
+     * @param array{key: string|null, length: int, delimiter: string, fields: array<string>|null, inline: string|null} $header
      * @return array<mixed>
      */
     private function decodeListArray(array $lines, int $startIdx, int $headerDepth, array $header): array
@@ -402,6 +383,7 @@ class Decoder
     /**
      * Decode an object item in a list.
      *
+     * @param array<array{depth: int, content: string, raw: string}> $lines
      * @return array<string, mixed>
      */
     private function decodeObjectItem(array $lines, int $idx, int $depth, string $firstLine): array

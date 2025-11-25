@@ -151,9 +151,9 @@ class Encoder
     }
 
     /**
-     * Encode an array of arrays.
+     * Encode an array of arrays (nested structure).
      *
-     * @param array<array> $arr Array of arrays
+     * @param array<array<mixed>> $arr Array of arrays
      * @param int $depth Current indentation depth
      * @param string|null $key Optional key name
      */
