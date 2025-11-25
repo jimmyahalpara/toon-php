@@ -117,11 +117,11 @@ class StringUtils
                         }
 
                         $hexCode = substr($value, $i + 2, 4);
-                        if (!ctype_xdigit($hexCode)) {
+                        if (! ctype_xdigit($hexCode)) {
                             throw new ToonDecodeException("Invalid unicode escape sequence: \\u{$hexCode}");
                         }
 
-                        $codePoint = hexdec($hexCode);
+                        $codePoint = (int) hexdec($hexCode);
                         $result .= mb_chr($codePoint, 'UTF-8');
                         $i += 6;
 

@@ -50,11 +50,12 @@ class Normalizer
         // Handle floats
         if (is_float($value)) {
             // Handle non-finite values
-            if (!is_finite($value) || is_nan($value)) {
+            if (! is_finite($value) || is_nan($value)) {
                 return null;
             }
 
             // Handle negative zero
+            // @phpstan-ignore-next-line Division by zero is intentional to detect -0.0
             if ($value === 0.0 && 1 / $value === -INF) {
                 return 0;
             }
@@ -90,12 +91,12 @@ class Normalizer
         // Handle stdClass objects
         if ($value instanceof stdClass) {
             $vars = get_object_vars($value);
-            
+
             // Keep empty stdClass as is to distinguish from empty array
             if (empty($vars)) {
                 return $value;
             }
-            
+
             $normalized = [];
             foreach ($vars as $key => $val) {
                 $normalized[$key] = self::normalizeValue($val);
@@ -149,7 +150,7 @@ class Normalizer
      */
     public static function isJsonArray(mixed $value): bool
     {
-        if (!is_array($value)) {
+        if (! is_array($value)) {
             return false;
         }
 
@@ -168,7 +169,7 @@ class Normalizer
      */
     public static function isJsonObject(mixed $value): bool
     {
-        if (!is_array($value)) {
+        if (! is_array($value)) {
             return false;
         }
 
@@ -192,7 +193,7 @@ class Normalizer
         }
 
         foreach ($value as $item) {
-            if (!self::isJsonPrimitive($item)) {
+            if (! self::isJsonPrimitive($item)) {
                 return false;
             }
         }
@@ -212,7 +213,7 @@ class Normalizer
         }
 
         foreach ($value as $item) {
-            if (!self::isJsonArray($item)) {
+            if (! self::isJsonArray($item)) {
                 return false;
             }
         }
@@ -232,7 +233,7 @@ class Normalizer
         }
 
         foreach ($value as $item) {
-            if (!self::isJsonObject($item)) {
+            if (! self::isJsonObject($item)) {
                 return false;
             }
         }

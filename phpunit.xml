@@ -17,7 +17,8 @@
             <directory suffix=".php">src</directory>
         </include>
         <report>
-            <html outputDirectory="coverage"/>
+            <html outputDirectory="coverage/html"/>
+            <clover outputFile="coverage/clover.xml"/>
             <text outputFile="php://stdout" showUncoveredFiles="true"/>
         </report>
     </coverage>

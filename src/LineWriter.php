@@ -40,7 +40,7 @@ class LineWriter
     public function push(int $depth, string $content): void
     {
         // Use cached indent string for performance
-        if (!isset($this->indentCache[$depth])) {
+        if (! isset($this->indentCache[$depth])) {
             if ($this->indentSize === 0) {
                 // indent=0 uses minimal spacing to preserve structure
                 $this->indentCache[$depth] = str_repeat(' ', $depth);

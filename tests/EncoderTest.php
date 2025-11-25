@@ -102,7 +102,7 @@ class EncoderTest extends TestCase
         // Empty stdClass normalizes to empty array, which looks like a list []
         // To explicitly create an empty object, use an associative array with no numeric keys
         $result = ToonFormat::encode(new \stdClass());
-        
+
         // But actually, PHP's empty array [] is ambiguous - could be list or object
         // The encoder should treat empty stdClass specially
         // For now, let's test with an actual empty associative array
