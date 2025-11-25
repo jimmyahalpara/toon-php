@@ -34,7 +34,7 @@ class Encoder
             // Empty object at root produces no output
             return;
         }
-        
+
         if (Normalizer::isJsonPrimitive($value)) {
             $this->writer->push($depth, Primitives::encodePrimitive($value, $this->options->getDelimiter()));
         } elseif (Normalizer::isJsonArray($value)) {
@@ -57,7 +57,7 @@ class Encoder
         if (empty($obj) && $key === null && $depth === 0) {
             return;
         }
-        
+
         if ($key !== null) {
             $this->writer->push($depth, Primitives::encodeKey($key) . Constants::COLON);
         }
@@ -136,7 +136,7 @@ class Encoder
     private function encodeInlinePrimitiveArray(array $arr, int $depth, ?string $key): void
     {
         $encodedValues = array_map(
-            fn($item) => Primitives::encodePrimitive($item, $this->options->getDelimiter()),
+            fn ($item) => Primitives::encodePrimitive($item, $this->options->getDelimiter()),
             $arr
         );
         $joined = Primitives::joinEncodedValues($encodedValues, $this->options->getDelimiter());
@@ -151,9 +151,9 @@ class Encoder
     }
 
     /**
-     * Encode an array of arrays.
+     * Encode an array of arrays (nested structure).
      *
-     * @param array<array> $arr Array of arrays
+     * @param array<array<mixed>> $arr Array of arrays
      * @param int $depth Current indentation depth
      * @param string|null $key Optional key name
      */
@@ -171,7 +171,7 @@ class Encoder
         foreach ($arr as $item) {
             if (Normalizer::isArrayOfPrimitives($item)) {
                 $encodedValues = array_map(
-                    fn($v) => Primitives::encodePrimitive($v, $this->options->getDelimiter()),
+                    fn ($v) => Primitives::encodePrimitive($v, $this->options->getDelimiter()),
                     $item
                 );
                 $joined = Primitives::joinEncodedValues($encodedValues, $this->options->getDelimiter());
@@ -183,7 +183,7 @@ class Encoder
                     $this->options->getLengthMarker()
                 );
                 $line = Constants::LIST_ITEM_PREFIX . $itemHeader;
-                if (!empty($joined)) {
+                if (! empty($joined)) {
                     $line .= ' ' . $joined;
                 }
                 $this->writer->push($depth + 1, $line);
@@ -215,7 +215,7 @@ class Encoder
                 return null;
             }
             foreach ($obj as $value) {
-                if (!Normalizer::isJsonPrimitive($value)) {
+                if (! Normalizer::isJsonPrimitive($value)) {
                     return null;
                 }
             }
@@ -245,7 +245,7 @@ class Encoder
 
         foreach ($arr as $obj) {
             $rowValues = array_map(
-                fn($field) => Primitives::encodePrimitive($obj[$field], $this->options->getDelimiter()),
+                fn ($field) => Primitives::encodePrimitive($obj[$field], $this->options->getDelimiter()),
                 $fields
             );
             $row = Primitives::joinEncodedValues($rowValues, $this->options->getDelimiter());
@@ -284,7 +284,7 @@ class Encoder
                 if (Normalizer::isArrayOfPrimitives($item)) {
                     // Inline primitive array
                     $encodedValues = array_map(
-                        fn($v) => Primitives::encodePrimitive($v, $this->options->getDelimiter()),
+                        fn ($v) => Primitives::encodePrimitive($v, $this->options->getDelimiter()),
                         $item
                     );
                     $joined = Primitives::joinEncodedValues($encodedValues, $this->options->getDelimiter());
@@ -296,7 +296,7 @@ class Encoder
                         $this->options->getLengthMarker()
                     );
                     $line = Constants::LIST_ITEM_PREFIX . $header;
-                    if (!empty($joined)) {
+                    if (! empty($joined)) {
                         $line .= ' ' . $joined;
                     }
                     $this->writer->push($depth + 1, $line);
@@ -350,7 +350,7 @@ class Encoder
             if (Normalizer::isArrayOfPrimitives($firstValue)) {
                 // Inline primitive array
                 $encodedValues = array_map(
-                    fn($item) => Primitives::encodePrimitive($item, $this->options->getDelimiter()),
+                    fn ($item) => Primitives::encodePrimitive($item, $this->options->getDelimiter()),
                     $firstValue
                 );
                 $joined = Primitives::joinEncodedValues($encodedValues, $this->options->getDelimiter());
@@ -362,7 +362,7 @@ class Encoder
                     $this->options->getLengthMarker()
                 );
                 $line = Constants::LIST_ITEM_PREFIX . $header;
-                if (!empty($joined)) {
+                if (! empty($joined)) {
                     $line .= ' ' . $joined;
                 }
                 $this->writer->push($depth, $line);
@@ -413,7 +413,7 @@ class Encoder
                 // Tabular format
                 foreach ($arr as $obj) {
                     $rowValues = array_map(
-                        fn($field) => Primitives::encodePrimitive($obj[$field], $this->options->getDelimiter()),
+                        fn ($field) => Primitives::encodePrimitive($obj[$field], $this->options->getDelimiter()),
                         $tabularHeader
                     );
                     $row = Primitives::joinEncodedValues($rowValues, $this->options->getDelimiter());

@@ -146,4 +146,3 @@ class Primitives
         return $lengthStr . $fieldsStr . ':';
     }
 }
-
