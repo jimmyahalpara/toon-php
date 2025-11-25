@@ -117,7 +117,7 @@ class StringUtils
                         }
 
                         $hexCode = substr($value, $i + 2, 4);
-                        if (!ctype_xdigit($hexCode)) {
+                        if (! ctype_xdigit($hexCode)) {
                             throw new ToonDecodeException("Invalid unicode escape sequence: \\u{$hexCode}");
                         }
 

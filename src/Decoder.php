@@ -30,7 +30,7 @@ class Decoder
     public function decode(string $input): mixed
     {
         $input = trim($input);
-        
+
         if ($input === '') {
             return [];
         }
@@ -44,10 +44,10 @@ class Decoder
 
         // Check if root is an array header (without a key)
         $firstLine = $parsedLines[0];
-        
+
         if ($this->isArrayHeader($firstLine['content'])) {
             $header = $this->parseArrayHeader($firstLine['content']);
-            
+
             // Root array (no key or empty key)
             if ($header['key'] === null || $header['key'] === '') {
                 // For root arrays, the header has depth 0, content has depth 1
@@ -57,7 +57,7 @@ class Decoder
         }
 
         // Check if single primitive
-        if (count($parsedLines) === 1 && !str_contains($firstLine['content'], ':')) {
+        if (count($parsedLines) === 1 && ! str_contains($firstLine['content'], ':')) {
             return $this->parsePrimitive($firstLine['content']);
         }
 
@@ -86,7 +86,7 @@ class Decoder
             $depth = 0;
             $trimmed = ltrim($line);
             $spaces = strlen($line) - strlen($trimmed);
-            
+
             if ($spaces > 0 && $indentSize > 0) {
                 $depth = (int)($spaces / $indentSize);
             }
@@ -136,6 +136,7 @@ class Decoder
 
             if ($line['depth'] > $expectedDepth) {
                 $i++;
+
                 continue;
             }
 
@@ -153,6 +154,7 @@ class Decoder
                     while ($i < count($lines) && $lines[$i]['depth'] >= $arrayItemDepth) {
                         $i++;
                     }
+
                     continue;
                 }
             }
@@ -160,7 +162,7 @@ class Decoder
             // Parse key-value
             if (str_contains($content, ':')) {
                 [$key, $value] = $this->splitKeyValue($content);
-                
+
                 if ($value === '' || $value === ':') {
                     // Nested object
                     $result[$key] = $this->decodeObject($lines, $i + 1, $line['depth']);
@@ -204,6 +206,7 @@ class Decoder
     {
         $line = $lines[$startIdx];
         $header = $this->parseArrayHeader($line['content']);
+
         return $this->decodeArrayContent($lines, $startIdx + 1, $line['depth'], $header);
     }
 
@@ -221,9 +224,9 @@ class Decoder
 
         // Check if this starts with a bracket (no key)
         $startsWithBracket = preg_match('/^\[/', $content);
-        
+
         // Extract key if present (not starting with bracket)
-        if (!$startsWithBracket && preg_match('/^(.+?)\[/', $content, $matches)) {
+        if (! $startsWithBracket && preg_match('/^(.+?)\[/', $content, $matches)) {
             $keyPart = trim($matches[1]);
             if ($keyPart !== '') {
                 $key = $this->parseKey($keyPart);
@@ -233,7 +236,7 @@ class Decoder
         // Extract bracket content
         if (preg_match('/\[([^\]]+)\]/', $content, $matches)) {
             $bracketContent = $matches[1];
-            
+
             // Check for delimiter
             if (str_ends_with($bracketContent, "\t")) {
                 $delimiter = "\t";
@@ -257,7 +260,7 @@ class Decoder
         if (preg_match('/\{([^}]+)\}/', $content, $matches)) {
             $fieldsStr = $matches[1];
             $fields = array_map(
-                fn($f) => $this->parseKey(trim($f)),
+                fn ($f) => $this->parseKey(trim($f)),
                 explode($delimiter, $fieldsStr)
             );
         }
@@ -314,7 +317,8 @@ class Decoder
     private function parseInlineArray(string $content, string $delimiter): array
     {
         $values = explode($delimiter, $content);
-        return array_map(fn($v) => $this->parsePrimitive(trim($v)), $values);
+
+        return array_map(fn ($v) => $this->parsePrimitive(trim($v)), $values);
     }
 
     /**
@@ -330,22 +334,22 @@ class Decoder
 
         for ($i = $startIdx; $i < count($lines); $i++) {
             $line = $lines[$i];
-            
+
             if ($line['depth'] < $expectedDepth) {
                 break;
             }
-            
+
             if ($line['depth'] !== $expectedDepth) {
                 continue;
             }
 
             $values = explode($header['delimiter'], $line['content']);
             $obj = [];
-            
+
             foreach ($fields as $idx => $field) {
                 $obj[$field] = isset($values[$idx]) ? $this->parsePrimitive(trim($values[$idx])) : null;
             }
-            
+
             $result[] = $obj;
         }
 
@@ -364,20 +368,20 @@ class Decoder
 
         for ($i = $startIdx; $i < count($lines); $i++) {
             $line = $lines[$i];
-            
+
             if ($line['depth'] < $expectedDepth) {
                 break;
             }
-            
+
             if ($line['depth'] !== $expectedDepth) {
                 continue;
             }
 
             $content = $line['content'];
-            
+
             if (str_starts_with($content, '- ')) {
                 $itemContent = substr($content, 2);
-                
+
                 // Check if array header
                 if ($this->isArrayHeader($itemContent)) {
                     $itemHeader = $this->parseArrayHeader($itemContent);
@@ -403,7 +407,7 @@ class Decoder
     private function decodeObjectItem(array $lines, int $idx, int $depth, string $firstLine): array
     {
         $obj = [];
-        
+
         // Parse first line
         [$key, $value] = $this->splitKeyValue($firstLine);
         $obj[$key] = $value !== '' ? $this->parsePrimitive($value) : null;
@@ -411,17 +415,17 @@ class Decoder
         // Parse remaining fields
         for ($i = $idx + 1; $i < count($lines); $i++) {
             $line = $lines[$i];
-            
+
             if ($line['depth'] <= $depth) {
                 break;
             }
-            
+
             if ($line['depth'] !== $depth + 1) {
                 continue;
             }
 
             $content = $line['content'];
-            
+
             if (str_contains($content, ':')) {
                 [$k, $v] = $this->splitKeyValue($content);
                 $obj[$k] = $v !== '' ? $this->parsePrimitive($v) : null;
@@ -439,7 +443,7 @@ class Decoder
     private function splitKeyValue(string $line): array
     {
         $colonPos = strpos($line, ':');
-        
+
         if ($colonPos === false) {
             throw new ToonDecodeException('Missing colon after key');
         }
@@ -456,7 +460,7 @@ class Decoder
     private function parseKey(string $key): string
     {
         $key = trim($key);
-        
+
         if (str_starts_with($key, '"') && str_ends_with($key, '"')) {
             return StringUtils::unescapeString(substr($key, 1, -1));
         }
@@ -473,9 +477,10 @@ class Decoder
 
         // Quoted string
         if (str_starts_with($token, '"')) {
-            if (!str_ends_with($token, '"')) {
+            if (! str_ends_with($token, '"')) {
                 throw new ToonDecodeException('Unterminated string: missing closing quote');
             }
+
             return StringUtils::unescapeString(substr($token, 1, -1));
         }
 
@@ -495,6 +500,7 @@ class Decoder
             if (str_contains($token, '.') || str_contains($token, 'e') || str_contains($token, 'E')) {
                 return (float)$token;
             }
+
             return (int)$token;
         }
 
